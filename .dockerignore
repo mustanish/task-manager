@@ -1,0 +1,12 @@
+.git
+.github
+.vscode
+.prettierrc
+docker-compose.yml
+README.md
+
+# Node Files #
+/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

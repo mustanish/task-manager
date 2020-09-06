@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "paths": {
+      "@groome/constants": ["src/constants/index"],
+      "@groome/entities": ["src/entities/index"],
+      "@groome/enums": ["src/enums/index"],
+      "@groome/pipes": ["src/pipes/index"],
+      "@groome/requests": ["src/dtos/requests/index"],
+      "@groome/responses": ["src/dtos/responses/index"],
+      "@groome/utils": ["src/utils/index"]
+    }
+  },
+  "exclude": ["node_modules","dist"]
+}

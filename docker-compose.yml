@@ -1,0 +1,87 @@
+version: '3.7'
+
+services:
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    networks:
+      - groomenet 
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: unless-stopped
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@groome.com
+      PGADMIN_DEFAULT_PASSWORD: groome
+    ports:
+      - '8080:80'    
+    depends_on:
+      - postgres  
+    networks:
+      - groomenet  
+
+  redis:
+    image: 'redis:alpine'
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    ports:
+      - ${CACHE_PORT}:${CACHE_PORT}
+    networks:
+      - groomenet  
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:${CACHE_PORT}:${CACHE_DB}
+    ports:
+      - '8081:8081'    
+    depends_on:
+      - redis  
+    networks:
+      - groomenet  
+
+  groome:
+    build:
+      context: ./ 
+      dockerfile: Dockerfile
+      target: dev
+    image: groome:dev
+    container_name: groome
+    restart: unless-stopped
+    volumes:
+      - ./:/usr/src/groome
+      - dependencies:/usr/src/groome/node_modules
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+      - '9229:9229'
+    depends_on:
+      - redis  
+      - postgres
+    networks:
+      - groomenet  
+
+volumes:
+  pgdata:
+  redisdata:
+  pgadmindata:  
+  dependencies:  
+
+networks:
+  groomenet:      
