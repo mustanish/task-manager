@@ -1,6 +1,5 @@
-import { OtpDev } from '@groome/constants';
 import { generate } from 'otp-generator';
-import { cloneDeep, difference } from 'lodash';
+import { OtpDev } from '@groome/constants';
 
 export function generateOTP(length): string {
   return process.env.NODE_ENV !== 'development'

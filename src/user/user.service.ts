@@ -10,8 +10,8 @@ import {
   UniquePhone,
   UpdatePassword,
 } from '@groome/constants';
-import { AuthService } from 'src/auth/auth.service';
 import { ErrorCode } from '@groome/enums';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserService {

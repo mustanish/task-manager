@@ -1,4 +1,4 @@
 export class Token {
   userID: string;
-  tokenType: string;
+  scope: string;
 }

@@ -7,9 +7,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude, classToPlain } from 'class-transformer';
-import { Platform, UserType } from '@groome/enums';
 import { hash, compare, genSaltSync } from 'bcryptjs';
 import { ProfileResponse } from '@groome/responses';
+import { Platform, UserType } from '@groome/enums';
 
 @Entity()
 export class User extends BaseEntity {

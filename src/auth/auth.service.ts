@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@groome/requests';
+import { AuthResponse, UserResponse } from '@groome/responses';
 import { generateOTP, addTime, timeDiff, timeNow } from '@groome/utils';
 import { User, Token } from '@groome/entities';
 import {
@@ -19,7 +20,6 @@ import {
   RefreshValidity,
 } from '@groome/constants';
 import { ErrorCode, VerificationType } from '@groome/enums';
-import { AuthResponse, UserResponse } from '@groome/responses';
 import { CacheService } from '../services/cache.service';
 import { JwtPayload } from './jwtpayload.interface';
 @Injectable()
@@ -50,7 +50,6 @@ export class AuthService {
       });
       const accessToken = await this.generateToken(
         userID,
-        'temp',
         'verifyOtp',
         OtpValidity,
       );
@@ -58,7 +57,9 @@ export class AuthService {
     } catch (error) {
       if (error.code === ErrorCode.UNIQUE)
         throw new HttpException(UniquePhone, HttpStatus.CONFLICT);
-      throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);
+      else if (error.status === HttpStatus.BAD_REQUEST)
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      else throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 
@@ -66,26 +67,27 @@ export class AuthService {
     try {
       const compareOtp = await user.compareOtp(request.otp);
       const difference = timeDiff(user.otpValidity);
-      if (!compareOtp || difference < 0) {
+      if (!compareOtp || difference <= 0) {
         throw new HttpException(InvalidOTP, HttpStatus.BAD_REQUEST);
       }
       [user.otp, user.otpValidity, user.phoneVerified] = [null, null, true];
-      await this.userRepository.save(user);
+      const { userID } = await this.userRepository.save(user);
       const accessToken = await this.generateToken(
-        user.userID,
-        'temp',
+        userID,
         'signUp',
         OtpValidity,
       );
       return { accessToken };
     } catch (error) {
+      if (error.status === HttpStatus.BAD_REQUEST)
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 
   async signUp(user: User, request: SignUp): Promise<UserResponse> {
     try {
-      await this.userRepository.save({
+      const { userID } = await this.userRepository.save({
         ...user,
         name: request.name,
         password: await user.hashPassword(request.password),
@@ -93,14 +95,12 @@ export class AuthService {
         lastLogedIn: timeNow(),
       });
       const accessToken = await this.generateToken(
-        user.userID,
+        userID,
         'access',
-        'all',
         AccessValidity,
       );
       const refreshToken = await this.generateToken(
-        user.userID,
-        'refresh',
+        userID,
         'refresh',
         RefreshValidity,
       );
@@ -113,52 +113,48 @@ export class AuthService {
   async signIn(request: SignIn): Promise<UserResponse> {
     try {
       const user = await this.detail(request.identity);
-      const comparePwd = await user.comparePassword(request.password);
-      if (!user || !comparePwd) {
+      if (!user || !(await user.comparePassword(request.password))) {
         throw new HttpException(InvalidCredentials, HttpStatus.UNAUTHORIZED);
       }
-      await this.userRepository.save({ ...user, lastLogedIn: timeNow() });
+      const { userID } = await this.userRepository.save({
+        ...user,
+        lastLogedIn: timeNow(),
+      });
       const accessToken = await this.generateToken(
-        user.userID,
+        userID,
         'access',
-        'all',
         AccessValidity,
       );
       const refreshToken = await this.generateToken(
-        user.userID,
-        'refresh',
+        userID,
         'refresh',
         RefreshValidity,
       );
       return { token: { accessToken, refreshToken }, user: user.profile() };
     } catch (error) {
+      if (error.status === HttpStatus.UNAUTHORIZED)
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
       throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 
   async refresh(user: User): Promise<AuthResponse> {
-    try {
-      const accessToken = await this.generateToken(
-        user.userID,
-        'access',
-        'all',
-        AccessValidity,
-      );
-      const refreshToken = await this.generateToken(
-        user.userID,
-        'refresh',
-        'refresh',
-        RefreshValidity,
-      );
-      return { accessToken, refreshToken };
-    } catch (error) {
-      throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);
-    }
+    const accessToken = await this.generateToken(
+      user.userID,
+      'access',
+      AccessValidity,
+    );
+    const refreshToken = await this.generateToken(
+      user.userID,
+      'refresh',
+      RefreshValidity,
+    );
+    return { accessToken, refreshToken };
   }
 
   async detail(identity: string): Promise<User> {
     const query = this.userRepository.createQueryBuilder('user');
-    query.where('user.userName=:identity OR user.phone=:identity', {
+    query.where(`user.userName=:identity OR user.phone=:identity`, {
       identity,
     });
     try {
@@ -170,14 +166,13 @@ export class AuthService {
 
   async generateToken(
     userID: string,
-    tokenType: string,
     scope: string,
     expiresIn: number,
   ): Promise<string> {
     const tokenID = uuidv4();
-    let jwtPyload: JwtPayload = { tokenID, tokenType, scope };
+    const jwtPyload: JwtPayload = { tokenID, scope };
+    const value: Token = { userID, scope };
     const token = this.jwtService.sign(jwtPyload, { expiresIn });
-    const value: Token = { tokenType, userID };
     this.cacheService.set<Token>(tokenID, value, expiresIn);
     return token;
   }
