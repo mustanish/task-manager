@@ -8,9 +8,9 @@ import {
   Param,
   Patch,
 } from '@nestjs/common';
-import { ResetPassword, ChangePassword, UpdateProfile } from '@groome/requests';
-import { User } from '@groome/entities';
-import { IdentityValidation } from '@groome/pipes';
+import { ResetPassword, ChangePassword, UpdateProfile } from '@taskmanager/requests';
+import { User } from '@taskmanager/entities';
+import { IdentityValidation } from '@taskmanager/pipes';
 import { UserService } from './user.service';
 import { UserDetail } from './user.decorator';
 import { JwtGuard } from '../auth/jwt.guard';

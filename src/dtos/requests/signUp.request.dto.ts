@@ -7,7 +7,7 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
-import { UserType } from '@groome/enums';
+import { UserType } from '@taskmanager/enums';
 
 export class SignUp {
   @IsNotEmpty()

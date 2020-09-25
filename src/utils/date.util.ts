@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { TimeStampFormat, TimeUnit } from '@groome/constants';
+import { TimeStampFormat, TimeUnit } from '@taskmanager/constants';
 
 export function addTime(duration: number): string {
   return moment()

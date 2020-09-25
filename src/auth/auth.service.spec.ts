@@ -2,10 +2,10 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '@groome/entities';
-import { VerifyIdentity, VerifyOtp, SignIn, SignUp } from '@groome/requests';
-import { ProfileResponse } from '@groome/responses';
-import { ErrorCode, Platform, VerificationType, UserType } from '@groome/enums';
+import { User } from '@taskmanager/entities';
+import { VerifyIdentity, VerifyOtp, SignIn, SignUp } from '@taskmanager/requests';
+import { ProfileResponse } from '@taskmanager/responses';
+import { ErrorCode, Platform, VerificationType, UserType } from '@taskmanager/enums';
 import {
   UniquePhone,
   InvalidPhone,
@@ -14,8 +14,8 @@ import {
   OtpValidity,
   InvalidOTP,
   InvalidCredentials,
-} from '@groome/constants';
-import { addTime } from '@groome/utils';
+} from '@taskmanager/constants';
+import { addTime } from '@taskmanager/utils';
 import { AuthService } from './auth.service';
 import { CacheService } from '../services/cache.service';
 

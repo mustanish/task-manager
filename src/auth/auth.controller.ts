@@ -6,11 +6,11 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@groome/requests';
-import { AuthResponse } from '@groome/responses';
-import { User } from '@groome/entities';
+import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@taskmanager/requests';
+import { AuthResponse } from '@taskmanager/responses';
+import { User } from '@taskmanager/entities';
 import { AuthService } from './auth.service';
-import { UserDetail } from 'src/user/user.decorator';
+import { UserDetail } from '../user/user.decorator';
 import { JwtGuard } from './jwt.guard';
 
 @Controller('auth')

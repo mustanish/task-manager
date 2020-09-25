@@ -4,7 +4,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { PhoneRegex, UserNameRegex } from '@groome/constants';
+import { PhoneRegex, UserNameRegex } from '@taskmanager/constants';
 
 @Injectable()
 export class IdentityValidation implements PipeTransform {

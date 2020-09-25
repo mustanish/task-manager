@@ -4,7 +4,7 @@ import {
   UserNameRegex,
   InvalidUserName,
   NameRegex,
-} from '@groome/constants';
+} from '@taskmanager/constants';
 import { IsNotEmpty, Matches } from 'class-validator';
 
 export class UpdateProfile {

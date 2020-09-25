@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, Token } from '@groome/entities';
-import { Unauthorized, ScopedResources } from '@groome/constants';
+import { User, Token } from '@taskmanager/entities';
+import { Unauthorized, ScopedResources } from '@taskmanager/constants';
 import { CacheService } from '../services/cache.service';
 import { JwtPayload } from './jwtpayload.interface';
 

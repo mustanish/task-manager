@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SuccessResponse } from '@groome/responses';
-import { Success } from '@groome/constants';
+import { SuccessResponse } from '@taskmanager/responses';
+import { Success } from '@taskmanager/constants';
 
 @Injectable()
 export class TransformResponse<T>

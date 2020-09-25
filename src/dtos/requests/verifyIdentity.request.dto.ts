@@ -1,6 +1,6 @@
 import { IsIn, IsNotEmpty, Matches } from 'class-validator';
-import { Platform, VerificationType } from '@groome/enums';
-import { PhoneRegex, InvalidPhone } from '@groome/constants';
+import { Platform, VerificationType } from '@taskmanager/enums';
+import { PhoneRegex, InvalidPhone } from '@taskmanager/constants';
 
 export class VerifyIdentity {
   @IsNotEmpty()

@@ -1,4 +1,4 @@
-import { UserType } from '@groome/enums';
+import { UserType } from '@taskmanager/enums';
 
 export interface ProfileResponse {
   name: string;

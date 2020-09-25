@@ -12,13 +12,13 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "@groome/constants": ["src/constants/index"],
-      "@groome/entities": ["src/entities/index"],
-      "@groome/enums": ["src/enums/index"],
-      "@groome/pipes": ["src/pipes/index"],
-      "@groome/requests": ["src/dtos/requests/index"],
-      "@groome/responses": ["src/dtos/responses/index"],
-      "@groome/utils": ["src/utils/index"]
+      "@taskmanager/constants": ["src/constants/index"],
+      "@taskmanager/entities": ["src/entities/index"],
+      "@taskmanager/enums": ["src/enums/index"],
+      "@taskmanager/pipes": ["src/pipes/index"],
+      "@taskmanager/requests": ["src/dtos/requests/index"],
+      "@taskmanager/responses": ["src/dtos/responses/index"],
+      "@taskmanager/utils": ["src/utils/index"]
     }
   },
   "exclude": ["node_modules","dist"]

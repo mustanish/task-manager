@@ -1,4 +1,4 @@
-import { AuthResponse, ProfileResponse } from '@groome/responses';
+import { AuthResponse, ProfileResponse } from '@taskmanager/responses';
 
 export interface UserResponse {
   token: AuthResponse;

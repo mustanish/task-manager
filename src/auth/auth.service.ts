@@ -3,10 +3,10 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@groome/requests';
-import { AuthResponse, UserResponse } from '@groome/responses';
-import { generateOTP, addTime, timeDiff, timeNow } from '@groome/utils';
-import { User, Token } from '@groome/entities';
+import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@taskmanager/requests';
+import { AuthResponse, UserResponse } from '@taskmanager/responses';
+import { generateOTP, addTime, timeDiff, timeNow } from '@taskmanager/utils';
+import { User, Token } from '@taskmanager/entities';
 import {
   OTPMsg,
   OtpLength,
@@ -18,8 +18,8 @@ import {
   InvalidCredentials,
   AccessValidity,
   RefreshValidity,
-} from '@groome/constants';
-import { ErrorCode, VerificationType } from '@groome/enums';
+} from '@taskmanager/constants';
+import { ErrorCode, VerificationType } from '@taskmanager/enums';
 import { CacheService } from '../services/cache.service';
 import { JwtPayload } from './jwtpayload.interface';
 @Injectable()

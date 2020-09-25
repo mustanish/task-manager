@@ -1,17 +1,17 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ResetPassword, ChangePassword, UpdateProfile } from '@groome/requests';
-import { ProfileResponse, MessageResponse } from '@groome/responses';
-import { User } from '@groome/entities';
+import { ResetPassword, ChangePassword, UpdateProfile } from '@taskmanager/requests';
+import { ProfileResponse, MessageResponse } from '@taskmanager/responses';
+import { User } from '@taskmanager/entities';
 import {
   Unavailable,
   InvalidCredentials,
   UniquePhone,
   UpdatePassword,
-} from '@groome/constants';
-import { ErrorCode } from '@groome/enums';
-import { AuthService } from 'src/auth/auth.service';
+} from '@taskmanager/constants';
+import { ErrorCode } from '@taskmanager/enums';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {

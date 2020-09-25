@@ -6,7 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Failed } from '@groome/constants';
+import { Failed } from '@taskmanager/constants';
 
 @Catch()
 export class ExceptionResponse implements ExceptionFilter {

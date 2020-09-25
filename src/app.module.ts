@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from 'nestjs-redis';
-import { AppConfig } from './configs/app.config';
+import { AppConfig } from './config/app.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ServicesModule } from './services/services.module';
@@ -12,6 +12,7 @@ import { ServicesModule } from './services/services.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [AppConfig],
+      envFilePath: process.env.ENV_FILE,
     }),
     RedisModule.forRootAsync({
       imports: [ConfigModule],

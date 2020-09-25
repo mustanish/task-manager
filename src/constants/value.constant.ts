@@ -23,3 +23,5 @@ export const ScopedResources = [
   '/auth/signUp',
   '/auth/refresh',
 ];
+
+export const Envs = ['development', 'testing'];
