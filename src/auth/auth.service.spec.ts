@@ -3,9 +3,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '@taskmanager/entities';
-import { VerifyIdentity, VerifyOtp, SignIn, SignUp } from '@taskmanager/requests';
+import {
+  VerifyIdentityRequest,
+  VerifyOtpRequest,
+  SignInRequest,
+  SignUpRequest,
+} from '@taskmanager/requests';
 import { ProfileResponse } from '@taskmanager/responses';
-import { ErrorCode, Platform, VerificationType, UserType } from '@taskmanager/enums';
+import { ErrorCode, Platform, VerificationType } from '@taskmanager/enums';
 import {
   UniquePhone,
   InvalidPhone,
@@ -68,15 +73,15 @@ describe('AuthService', () => {
       userRepository.createQueryBuilder.mockReturnValue(queryMethods);
     });
 
-    const request: VerifyIdentity = {
+    const request: VerifyIdentityRequest = {
       phone: `0000000000`,
       platform: Platform.WHATSAPP,
       type: VerificationType.CREATEACCOUNT,
     };
 
     test(`verify user's identity before signup`, async () => {
-      const [userID, token] = [`123`, `123`];
-      userRepository.save.mockResolvedValue({ userID });
+      const [id, token] = [`123`, `123`];
+      userRepository.save.mockResolvedValue({ id });
       jwtService.sign.mockResolvedValue(token);
       const response = await authService.verifyIdentity(request);
       expect(response.accessToken).toEqual(token);
@@ -84,9 +89,9 @@ describe('AuthService', () => {
     });
 
     test(`verify user's identity before reset password`, async () => {
-      const [userID, token] = [`123`, `123`];
+      const [id, token] = [`123`, `123`];
       queryMethods.getOne.mockResolvedValue(mockuser);
-      userRepository.save.mockResolvedValue({ userID });
+      userRepository.save.mockResolvedValue({ id });
       jwtService.sign.mockResolvedValue(token);
       const response = await authService.verifyIdentity({
         ...request,
@@ -134,14 +139,14 @@ describe('AuthService', () => {
   });
 
   describe('Verify Otp', () => {
-    const request: VerifyOtp = {
+    const request: VerifyOtpRequest = {
       otp: `000000`,
     };
 
     test(`able to verify otp`, async () => {
-      const [userID, token] = [`123`, `123`];
+      const [id, token] = [`123`, `123`];
       mockuser.compareOtp = jest.fn().mockResolvedValue(true);
-      userRepository.save.mockResolvedValue({ userID });
+      userRepository.save.mockResolvedValue({ id });
       jwtService.sign.mockResolvedValue(token);
       const response = await authService.verifyOtp(
         { ...mockuser, otpValidity: addTime(OtpValidity) },
@@ -192,22 +197,20 @@ describe('AuthService', () => {
   });
 
   describe('SignUp', () => {
-    const request: SignUp = {
+    const request: SignUpRequest = {
       name: `mustanish`,
       password: `test`,
-      type: UserType.CUSTOMER,
     };
 
     test(`able to sign up successfully`, async () => {
-      const [userID, token] = [`123`, `123`];
+      const [id, token] = [`123`, `123`];
       const profile: ProfileResponse = {
         name: `mustanish`,
         phone: `123`,
         phoneVerified: true,
-        type: UserType.CUSTOMER,
       };
       mockuser.profile = jest.fn().mockReturnValue(profile);
-      userRepository.save.mockResolvedValue({ userID });
+      userRepository.save.mockResolvedValue({ id });
       jwtService.sign.mockResolvedValue(token);
       const response = await authService.signUp(mockuser, request);
       expect(response.token.accessToken).toEqual(token);
@@ -238,23 +241,22 @@ describe('AuthService', () => {
       userRepository.createQueryBuilder.mockReturnValue(queryMethods);
     });
 
-    const request: SignIn = {
+    const request: SignInRequest = {
       identity: `123`,
       password: `123`,
     };
 
     test(`able to sign in successfully`, async () => {
-      const [userID, token] = [`123`, `123`];
+      const [id, token] = [`123`, `123`];
       const profile: ProfileResponse = {
         name: `mustanish`,
         phone: `123`,
         phoneVerified: true,
-        type: UserType.CUSTOMER,
       };
       queryMethods.getOne.mockResolvedValue(mockuser);
       mockuser.comparePassword = jest.fn().mockResolvedValue(true);
       mockuser.profile = jest.fn().mockReturnValue(profile);
-      userRepository.save.mockResolvedValue({ userID });
+      userRepository.save.mockResolvedValue({ id });
       jwtService.sign.mockResolvedValue(token);
       const response = await authService.signIn(request);
       expect(response.token.accessToken).toEqual(token);
@@ -302,8 +304,8 @@ describe('AuthService', () => {
 
   describe('Refresh Token', () => {
     test(`able to reresh token `, async () => {
-      const [userID, token] = [`123`, `123`];
-      userRepository.save.mockResolvedValue({ userID });
+      const [id, token] = [`123`, `123`];
+      userRepository.save.mockResolvedValue({ id });
       jwtService.sign.mockResolvedValue(token);
       const response = await authService.refresh(mockuser);
       expect(response.accessToken).toEqual(token);

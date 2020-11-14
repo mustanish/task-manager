@@ -5,3 +5,4 @@ export * from './signUp.request.dto';
 export * from './verifyIdentity.request.dto';
 export * from './verifyOtp.request.dto';
 export * from './updateProfile.request.dto';
+export * from './task.request.dto';

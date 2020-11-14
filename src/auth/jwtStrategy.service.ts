@@ -28,15 +28,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const [route, { tokenID, scope }] = [request.url, payload];
     if (!this.tokenScope(scope, route))
       throw new HttpException(Unauthorized, HttpStatus.UNAUTHORIZED);
-
     const { userID } = await this.cacheService.get<Token>(tokenID);
-    const user = await this.userRepository.findOne({ userID });
+    const user = await this.userRepository.findOne({ id: userID });
     return user;
   }
 
   tokenScope(scope: string, route: string): boolean {
-    return (ScopedResources.includes(route) && route !== `/auth/${scope}`) ||
-      (!ScopedResources.includes(route) && scope !== 'all')
+    console.log({ scope, route });
+    return (ScopedResources.includes(route) &&
+      ![`/auth/${scope}`, `/user/${scope}`].includes(route)) ||
+      (!ScopedResources.includes(route) && scope !== 'access')
       ? false
       : true;
   }

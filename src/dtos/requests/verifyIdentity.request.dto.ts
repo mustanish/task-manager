@@ -2,7 +2,7 @@ import { IsIn, IsNotEmpty, Matches } from 'class-validator';
 import { Platform, VerificationType } from '@taskmanager/enums';
 import { PhoneRegex, InvalidPhone } from '@taskmanager/constants';
 
-export class VerifyIdentity {
+export class VerifyIdentityRequest {
   @IsNotEmpty()
   @Matches(PhoneRegex, { message: InvalidPhone })
   phone: string;

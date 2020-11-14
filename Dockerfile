@@ -11,7 +11,7 @@ EXPOSE 3000
 
 ## Stage 2 (development)
 FROM base as dev
-ENV NODE_ENV=development ENV_FILE=dev.env
+ENV NODE_ENV=development
 RUN yarn install
 CMD [ "yarn", "start:debug"]
 

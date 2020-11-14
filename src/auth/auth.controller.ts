@@ -6,7 +6,12 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@taskmanager/requests';
+import {
+  VerifyIdentityRequest,
+  VerifyOtpRequest,
+  SignUpRequest,
+  SignInRequest,
+} from '@taskmanager/requests';
 import { AuthResponse } from '@taskmanager/responses';
 import { User } from '@taskmanager/entities';
 import { AuthService } from './auth.service';
@@ -20,7 +25,7 @@ export class AuthController {
   @HttpCode(200)
   @Post('/verifyIdentity')
   async verifyIdentity(
-    @Body(ValidationPipe) request: VerifyIdentity,
+    @Body(ValidationPipe) request: VerifyIdentityRequest,
   ): Promise<AuthResponse> {
     return this.authService.verifyIdentity(request);
   }
@@ -30,21 +35,24 @@ export class AuthController {
   @UseGuards(JwtGuard)
   verifyOtp(
     @UserDetail() user: User,
-    @Body(ValidationPipe) request: VerifyOtp,
+    @Body(ValidationPipe) request: VerifyOtpRequest,
   ): Promise<AuthResponse> {
     return this.authService.verifyOtp(user, request);
   }
 
   @HttpCode(200)
-  @Post('/signup')
+  @Post('/signUp')
   @UseGuards(JwtGuard)
-  signUp(@UserDetail() user: User, @Body(ValidationPipe) request: SignUp) {
+  signUp(
+    @UserDetail() user: User,
+    @Body(ValidationPipe) request: SignUpRequest,
+  ) {
     return this.authService.signUp(user, request);
   }
 
   @HttpCode(200)
-  @Post('/signin')
-  signIn(@Body(ValidationPipe) request: SignIn) {
+  @Post('/signIn')
+  signIn(@Body(ValidationPipe) request: SignInRequest) {
     return this.authService.signIn(request);
   }
 

@@ -5,6 +5,7 @@ import { RedisModule } from 'nestjs-redis';
 import { AppConfig } from './config/app.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { TaskModule } from './task/task.module';
 import { ServicesModule } from './services/services.module';
 
 @Module({
@@ -12,7 +13,7 @@ import { ServicesModule } from './services/services.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [AppConfig],
-      envFilePath: process.env.ENV_FILE,
+      ...(process.env.ENV_FILE && { envFilePath: process.env.ENV_FILE }),
     }),
     RedisModule.forRootAsync({
       imports: [ConfigModule],
@@ -28,6 +29,7 @@ import { ServicesModule } from './services/services.module';
     AuthModule,
     UserModule,
     ServicesModule,
+    TaskModule,
   ],
 })
 export class AppModule {}

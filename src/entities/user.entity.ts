@@ -5,17 +5,19 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude, classToPlain } from 'class-transformer';
 import { hash, compare, genSaltSync } from 'bcryptjs';
 import { ProfileResponse } from '@taskmanager/responses';
-import { Platform, UserType } from '@taskmanager/enums';
+import { Platform, VerificationType } from '@taskmanager/enums';
+import { Task } from '@taskmanager/entities';
 
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @Exclude()
-  userID: string;
+  id: string;
 
   @Column({
     type: 'varchar',
@@ -48,13 +50,6 @@ export class User extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: [UserType.OWNER, UserType.EMPLOYEE, UserType.CUSTOMER],
-    default: UserType.CUSTOMER,
-  })
-  type: UserType;
-
-  @Column({
-    type: 'enum',
     enum: [
       Platform.GOOGLE,
       Platform.FACEBOOK,
@@ -63,28 +58,34 @@ export class User extends BaseEntity {
     ],
     default: Platform.NORMAL,
   })
-  @Exclude()
   platform: Platform;
 
   @Column({ nullable: true })
   @Exclude()
   otp: string;
 
+  @Column({
+    type: 'enum',
+    enum: [VerificationType.CREATEACCOUNT, VerificationType.FORGOTACCOUNT],
+    nullable: true,
+  })
+  @Exclude()
+  otpType: VerificationType;
+
   @Column({ type: 'timestamp', nullable: true })
   @Exclude()
   otpValidity: string;
 
-  @Column({ default: false })
-  @Exclude()
-  blocked: boolean;
-
-  @Column({ default: 0 })
-  @Exclude()
-  loginAttempts: number;
-
   @Column({ type: 'timestamp', nullable: true })
   @Exclude()
   lastLogedIn: string;
+
+  @OneToMany(
+    type => Task,
+    task => task.user,
+    { eager: true },
+  )
+  tasks: Task[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'LOCALTIMESTAMP' })
   @Exclude()
@@ -93,16 +94,6 @@ export class User extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'LOCALTIMESTAMP' })
   @Exclude()
   updatedAt: string;
-
-  @Column({ type: 'timestamp', nullable: true })
-  @Exclude()
-  blockedAt: string;
-
-  constructor() {
-    super();
-    this.phone = null;
-    this.platform = null;
-  }
 
   async hashOtp(otp: string): Promise<string> {
     return await hash(otp, genSaltSync(10));

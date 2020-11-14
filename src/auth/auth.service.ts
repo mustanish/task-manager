@@ -3,7 +3,12 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { VerifyIdentity, VerifyOtp, SignUp, SignIn } from '@taskmanager/requests';
+import {
+  VerifyIdentityRequest,
+  VerifyOtpRequest,
+  SignUpRequest,
+  SignInRequest,
+} from '@taskmanager/requests';
 import { AuthResponse, UserResponse } from '@taskmanager/responses';
 import { generateOTP, addTime, timeDiff, timeNow } from '@taskmanager/utils';
 import { User, Token } from '@taskmanager/entities';
@@ -31,26 +36,24 @@ export class AuthService {
     private cacheService: CacheService,
   ) {}
 
-  async verifyIdentity(request: VerifyIdentity): Promise<AuthResponse> {
+  async verifyIdentity(request: VerifyIdentityRequest): Promise<AuthResponse> {
     try {
-      let user = await this.userRepository.create({
-        phone: request.phone,
-        platform: request.platform,
-      });
+      let user = await this.userRepository.create(request);
       if (request.type === VerificationType.FORGOTACCOUNT) {
         user = await this.detail(request.phone);
         if (!user) {
           throw new HttpException(InvalidPhone, HttpStatus.BAD_REQUEST);
         }
       }
-      const { userID } = await this.userRepository.save({
+      const { id } = await this.userRepository.save({
         ...user,
         otp: await user.hashOtp(generateOTP(OtpLength)),
+        otpType: request.type,
         otpValidity: addTime(OtpValidity),
       });
       const accessToken = await this.generateToken(
-        userID,
-        'verifyOtp',
+        id,
+        `verifyOtp`,
         OtpValidity,
       );
       return { accessToken, message: OTPMsg };
@@ -63,7 +66,10 @@ export class AuthService {
     }
   }
 
-  async verifyOtp(user: User, request: VerifyOtp): Promise<AuthResponse> {
+  async verifyOtp(
+    user: User,
+    request: VerifyOtpRequest,
+  ): Promise<AuthResponse> {
     try {
       const compareOtp = await user.compareOtp(request.otp);
       const difference = timeDiff(user.otpValidity);
@@ -71,10 +77,10 @@ export class AuthService {
         throw new HttpException(InvalidOTP, HttpStatus.BAD_REQUEST);
       }
       [user.otp, user.otpValidity, user.phoneVerified] = [null, null, true];
-      const { userID } = await this.userRepository.save(user);
+      const { id, otpType } = await this.userRepository.save(user);
       const accessToken = await this.generateToken(
-        userID,
-        'signUp',
+        id,
+        otpType === VerificationType.CREATEACCOUNT ? `signUp` : `resetPassword`,
         OtpValidity,
       );
       return { accessToken };
@@ -85,23 +91,22 @@ export class AuthService {
     }
   }
 
-  async signUp(user: User, request: SignUp): Promise<UserResponse> {
+  async signUp(user: User, request: SignUpRequest): Promise<UserResponse> {
     try {
-      const { userID } = await this.userRepository.save({
+      const { id } = await this.userRepository.save({
         ...user,
-        name: request.name,
+        ...request,
         password: await user.hashPassword(request.password),
-        type: request.type,
         lastLogedIn: timeNow(),
       });
       const accessToken = await this.generateToken(
-        userID,
-        'access',
+        id,
+        `access`,
         AccessValidity,
       );
       const refreshToken = await this.generateToken(
-        userID,
-        'refresh',
+        id,
+        `refresh`,
         RefreshValidity,
       );
       return { token: { accessToken, refreshToken }, user: user.profile() };
@@ -110,24 +115,24 @@ export class AuthService {
     }
   }
 
-  async signIn(request: SignIn): Promise<UserResponse> {
+  async signIn(request: SignInRequest): Promise<UserResponse> {
     try {
       const user = await this.detail(request.identity);
       if (!user || !(await user.comparePassword(request.password))) {
         throw new HttpException(InvalidCredentials, HttpStatus.UNAUTHORIZED);
       }
-      const { userID } = await this.userRepository.save({
+      const { id } = await this.userRepository.save({
         ...user,
         lastLogedIn: timeNow(),
       });
       const accessToken = await this.generateToken(
-        userID,
-        'access',
+        id,
+        `access`,
         AccessValidity,
       );
       const refreshToken = await this.generateToken(
-        userID,
-        'refresh',
+        id,
+        `refresh`,
         RefreshValidity,
       );
       return { token: { accessToken, refreshToken }, user: user.profile() };
@@ -138,26 +143,22 @@ export class AuthService {
     }
   }
 
-  async refresh(user: User): Promise<AuthResponse> {
-    const accessToken = await this.generateToken(
-      user.userID,
-      'access',
-      AccessValidity,
-    );
+  async refresh({ id }: User): Promise<AuthResponse> {
+    const accessToken = await this.generateToken(id, `access`, AccessValidity);
     const refreshToken = await this.generateToken(
-      user.userID,
-      'refresh',
+      id,
+      `refresh`,
       RefreshValidity,
     );
     return { accessToken, refreshToken };
   }
 
   async detail(identity: string): Promise<User> {
-    const query = this.userRepository.createQueryBuilder('user');
-    query.where(`user.userName=:identity OR user.phone=:identity`, {
-      identity,
-    });
     try {
+      const query = this.userRepository.createQueryBuilder(`user`);
+      query.where(`user.userName=:identity OR user.phone=:identity`, {
+        identity,
+      });
       return await query.getOne();
     } catch (error) {
       throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);

@@ -10,11 +10,11 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./db.sh:/docker-entrypoint-initdb.d/db.sh
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${TYPEORM_USERNAME}
+      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
       POSTGRES_DB: taskmanager
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - ${TYPEORM_PORT}:${TYPEORM_PORT}
     networks:
       - taskmanagernet 
 
@@ -50,7 +50,7 @@ services:
     container_name: redis-commander
     restart: unless-stopped
     environment:
-      REDIS_HOSTS: local:redis:${CACHE_PORT}:${CACHE_DB}
+      REDIS_HOSTS: dev:redis:${CACHE_PORT}:1,test:redis:${CACHE_PORT}:2
     ports:
       - '8081:8081'    
     depends_on:

@@ -1,6 +1,6 @@
 import { IsNotEmpty, MinLength, MaxLength, IsString } from 'class-validator';
 
-export class SignIn {
+export class SignInRequest {
   @IsNotEmpty()
   identity: string;
 

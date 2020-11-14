@@ -18,6 +18,10 @@ export const InvalidCredentials = `Invalid credentials, Please re-enter`;
 
 export const UpdatePassword = `Your password has been changed successfully`;
 
+export const InvalidTask = `Sorry that is not a valid task, Please enter a valid taskID`;
+
+export const UniqueTask = `Sorry a task with the name already exist`;
+
 export const Failed = `failed`;
 
 export const Success = `success`;

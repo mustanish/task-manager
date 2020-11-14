@@ -5,3 +5,5 @@ export * from './transform.response.dto';
 export * from './profile.response.dto';
 export * from './user.response.dto';
 export * from './message.response.dto';
+export * from './task.response.dto';
+export * from './pagination.response.dto';

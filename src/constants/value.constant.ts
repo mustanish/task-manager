@@ -22,6 +22,7 @@ export const ScopedResources = [
   '/auth/verifyOtp',
   '/auth/signUp',
   '/auth/refresh',
+  '/user/resetPassword',
 ];
 
 export const Envs = ['development', 'testing'];

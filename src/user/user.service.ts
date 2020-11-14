@@ -1,7 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ResetPassword, ChangePassword, UpdateProfile } from '@taskmanager/requests';
+import {
+  ResetPasswordRequest,
+  ChangePasswordRequest,
+  UpdateProfileRequest,
+} from '@taskmanager/requests';
 import { ProfileResponse, MessageResponse } from '@taskmanager/responses';
 import { User } from '@taskmanager/entities';
 import {
@@ -23,7 +27,7 @@ export class UserService {
 
   async resetPassword(
     user: User,
-    request: ResetPassword,
+    request: ResetPasswordRequest,
   ): Promise<MessageResponse> {
     try {
       await this.userRepository.save({
@@ -38,7 +42,7 @@ export class UserService {
 
   async changePassword(
     user: User,
-    request: ChangePassword,
+    request: ChangePasswordRequest,
   ): Promise<MessageResponse> {
     try {
       if (!(await user.comparePassword(request.oldPassword))) {
@@ -50,24 +54,24 @@ export class UserService {
       });
       return { message: UpdatePassword };
     } catch (error) {
+      if (error.status === HttpStatus.UNAUTHORIZED)
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
       throw new HttpException(Unavailable, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 
   async profile(identity: string): Promise<ProfileResponse> {
-    return await (await this.authService.detail(identity)).profile();
+    return (await this.authService.detail(identity)).profile();
   }
 
   async updateProfile(
     user: User,
-    request: UpdateProfile,
+    request: UpdateProfileRequest,
   ): Promise<ProfileResponse> {
     try {
       await this.userRepository.save({
         ...user,
-        name: request.name,
-        userName: request.userName,
-        phone: request.phone,
+        ...request,
       });
       return this.profile(user.phone);
     } catch (error) {

@@ -8,7 +8,11 @@ import {
   Param,
   Patch,
 } from '@nestjs/common';
-import { ResetPassword, ChangePassword, UpdateProfile } from '@taskmanager/requests';
+import {
+  ResetPasswordRequest,
+  ChangePasswordRequest,
+  UpdateProfileRequest,
+} from '@taskmanager/requests';
 import { User } from '@taskmanager/entities';
 import { IdentityValidation } from '@taskmanager/pipes';
 import { UserService } from './user.service';
@@ -20,18 +24,18 @@ import { JwtGuard } from '../auth/jwt.guard';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post('/resetPassword')
+  @Patch('/resetPassword')
   resetPassword(
     @UserDetail() user: User,
-    @Body(ValidationPipe) request: ResetPassword,
+    @Body(ValidationPipe) request: ResetPasswordRequest,
   ) {
     return this.userService.resetPassword(user, request);
   }
 
-  @Post('/changePassword')
+  @Patch('/changePassword')
   changePassword(
     @UserDetail() user: User,
-    @Body(ValidationPipe) request: ChangePassword,
+    @Body(ValidationPipe) request: ChangePasswordRequest,
   ) {
     return this.userService.changePassword(user, request);
   }
@@ -41,10 +45,10 @@ export class UserController {
     return this.userService.profile(identity);
   }
 
-  @Patch()
+  @Patch('/')
   updateProfile(
     @UserDetail() user: User,
-    @Body(ValidationPipe) request: UpdateProfile,
+    @Body(ValidationPipe) request: UpdateProfileRequest,
   ) {
     return this.userService.updateProfile(user, request);
   }
